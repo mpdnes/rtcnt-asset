@@ -1,0 +1,30 @@
+.container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background: white;
+    padding: 20px; /* Adjust as needed */
+    flex-wrap: wrap; /* Allows items to wrap to the next line */
+}
+
+.logo {
+    width: 30%; /* Use a percentage for width */
+    max-width: 187.68px; /* Optional: set a maximum width */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.text {
+    color: rgba(0, 0, 0, 0.70);
+    font-size: 2.5vw; /* Use viewport width for responsive font size */
+    font-family: 'Hanken Grotesk', sans-serif; /* Ensure to include a fallback */
+    font-weight: 800;
+    word-wrap: break-word;
+    margin-left: 10px; /* Space between logo and text */
+}
+
+/* Media queries for larger screens */
+@media (min-width: 600px) {
+    .text {
+        font-size: 45.64px; /* Set a specific font size for larger screens */
+    }
+}
