@@ -1,44 +1,92 @@
-/* Main font styles for general text */
-body, .main-title, .header-text {
-    color: rgba(0, 0, 0, 0.80);
-    font-family: "Hanken Grotesk", sans-serif;
+/* General styling */
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Hanken Grotesk', sans-serif;
+    display: flex;
+    flex-direction: column;
+    font-size: 16px; /* Base font size */
+}
+
+/* Fixed Header (Nav) */
+.header {
+    width: 100%;
+    padding: 1rem 2rem; 
+    display: flex;
+    align-items: center;
+    background-color: #FFFFFF;
+    position: fixed; 
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.logo {
+    width: 9.375rem; 
+    height: auto;
+}
+
+.header-text {
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 2.25rem; 
+    font-weight: 800;
+    margin-left: 1.25rem; 
+}
+
+/* Main content styling */
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    flex-direction: column;
+    padding-top: 7.5rem; 
+}
+
+/* Title */
+.main-title {
+    font-size: 3.5rem; 
     font-weight: 400;
+    text-align: center;
+    margin-bottom: 5rem; 
+}
+
+/* Placeholder for image or content */
+.placeholder {
+    width: 18.75rem; 
+    height: 12.5rem; 
+    background-color: #d3d3d3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5rem; 
+    text-align: center;
+    font-size: 1.25rem; 
+    color: #000;
 }
 
 /* Button styling */
 .start-button {
     display: flex;
-    width: 387.65px;
-    padding: 20.83px 27.77px;
-    flex-direction: column;
+    width: 24.25rem; 
+    padding: 1.3rem 1.75rem;
     justify-content: center;
-    align-items: center;
     background-color: #F76903;
     border: none;
-    border-radius: 9.26px;
+    border-radius: 0.6rem;
     color: white;
-    font-size: 30px;
-    font-family: "Hanken Grotesk", sans-serif;
+    font-size: 1.875rem; 
     font-weight: 600;
-    line-height: 32.40px;
+    line-height: 2rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .start-button:hover {
-    background-color: #d85d02; /* Darker orange when hovered */
+    background-color: #d85d02;
 }
 
 .start-button:active {
-    background-color: #b84f02; /* Even darker when pressed */
-}
-
-/* Optional reset to ensure buttons appear uniform */
-button {
-    border: none;
-    outline: none;
-    font-family: inherit;
-    font-size: inherit;
-    color: inherit;
-    cursor: pointer;
+    background-color: #b84f02;
 }
