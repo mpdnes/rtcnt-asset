@@ -1,30 +1,92 @@
-.container {
+/* General styling */
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Hanken Grotesk', sans-serif;
     display: flex;
-    justify-content: flex-start;
+    flex-direction: column;
+    font-size: 16px; /* Base font size */
+}
+
+/* Fixed Header (Nav) */
+.header {
+    width: 100%;
+    padding: 1rem 2rem; 
+    display: flex;
     align-items: center;
-    background: white;
-    padding: 20px; /* Adjust as needed */
-    flex-wrap: wrap; /* Allows items to wrap to the next line */
+    background-color: #FFFFFF;
+    position: fixed; 
+    top: 0;
+    left: 0;
+    z-index: 1000;
 }
 
 .logo {
-    width: 30%; /* Use a percentage for width */
-    max-width: 187.68px; /* Optional: set a maximum width */
-    height: auto; /* Maintain aspect ratio */
+    width: 9.375rem; 
+    height: auto;
 }
 
-.text {
-    color: rgba(0, 0, 0, 0.70);
-    font-size: 2.5vw; /* Use viewport width for responsive font size */
-    font-family: 'Hanken Grotesk', sans-serif; /* Ensure to include a fallback */
+.header-text {
+    color: rgba(0, 0, 0, 0.7);
+    font-size: 2.25rem; 
     font-weight: 800;
-    word-wrap: break-word;
-    margin-left: 10px; /* Space between logo and text */
+    margin-left: 1.25rem; 
 }
 
-/* Media queries for larger screens */
-@media (min-width: 600px) {
-    .text {
-        font-size: 45.64px; /* Set a specific font size for larger screens */
-    }
+/* Main content styling */
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    flex-direction: column;
+    padding-top: 7.5rem; 
+}
+
+/* Title */
+.main-title {
+    font-size: 3.5rem; 
+    font-weight: 400;
+    text-align: center;
+    margin-bottom: 5rem; 
+}
+
+/* Placeholder for image or content */
+.placeholder {
+    width: 18.75rem; 
+    height: 12.5rem; 
+    background-color: #d3d3d3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5rem; 
+    text-align: center;
+    font-size: 1.25rem; 
+    color: #000;
+}
+
+/* Button styling */
+.start-button {
+    display: flex;
+    width: 24.25rem; 
+    padding: 1.3rem 1.75rem;
+    justify-content: center;
+    background-color: #F76903;
+    border: none;
+    border-radius: 0.6rem;
+    color: white;
+    font-size: 1.875rem; 
+    font-weight: 600;
+    line-height: 2rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.start-button:hover {
+    background-color: #d85d02;
+}
+
+.start-button:active {
+    background-color: #b84f02;
 }
