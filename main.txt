@@ -183,15 +183,14 @@ def start_camera(barcode_type='user'):
 
 
 def handle_user_signin(barcode_data):
-    """Handles user sign-in by scanning a barcode."""
-    global current_user_id, current_user_name
     user_info = get_user_info(employee_num=barcode_data)
     if user_info:
         current_user_id = user_info['id']
         current_user_name = user_info['name']
-        show_main_menu()
+        return {'name': current_user_name}  # Return the user's name
     else:
-        messagebox.showerror("Error", "Failed to sign in. User not found.")
+        return {'error': 'Failed to sign in. User not found.'}
+
 
 def show_main_menu():
     """Shows the main menu after the user has signed in."""
