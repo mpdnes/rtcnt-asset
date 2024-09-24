@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - RTCNT Equipment Kiosk</title>
+    <!-- Link to Google Fonts for Hanken Grotesk -->
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Link to CSS with correct relative path -->
+    <link rel="stylesheet" href="../static/styles.css"> 
+</head>
+<body>
+
+    <!-- Fixed Header at the top -->
+    <div class="header">
+        <!-- Logo Image with correct relative path -->
+        <img class="logo" src="../static/images/rit_logo.png" alt="RIT Logo" />
+        <div class="header-text">Real-Time Captioning & Notetaking</div>
+    </div>
+
+    <!-- Main content below the fixed header -->
+    <main>
+        <div class="center-container">
+            <div class="main-title">Scan Your ID</div>
+            <!-- Camera Video Element -->
+            <div class="camera-container">
+                <video id="camera" autoplay playsinline></video>
+                <!-- Canvas for capturing images (hidden) -->
+                <canvas id="canvas" style="display:none;"></canvas>
+            </div>
+            <div class="instructions">Please align your ID within the frame to scan.</div>
+            <!-- Cancel Button as a link -->
+            <a href="index.html" class="cancel-button">Cancel</a>
+            <!-- Feedback Message -->
+            <div id="feedback" class="feedback-message"></div>
+        </div>
+    </main>
+
+    <!-- JavaScript for Camera Access and Automatic Frame Capture -->
+    <script>
+        const video = document.getElementById('camera');
+        const canvas = document.getElementById('canvas');
+        const feedback = document.getElementById('feedback');
+
+        // Access the device camera and stream to video element
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    video.play();
+                    // Automatically capture after a delay (e.g., 3 seconds)
+                    setTimeout(captureFrame, 3000);
+                };
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                alert('Unable to access the camera. Please check your permissions.');
+            }
+        }
+
+        // Function to capture the current frame from the video stream
+        function captureFrame() {
+            // Set canvas dimensions to video dimensions
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            // Draw the current frame from video to canvas
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // Convert the canvas image to data URL
+            const dataURL = canvas.toDataURL('image/jpeg');
+            // Process the captured image (e.g., send to server or display)
+            processCapturedImage(dataURL);
+        }
+
+        // Function to handle the captured image
+        function processCapturedImage(dataURL) {
+            // Example: Display a feedback message
+            feedback.textContent = 'ID scanned successfully.';
+            feedback.style.color = 'green';
+            // Stop the video stream
+            stopCamera();
+            // Optionally, send the dataURL to a server for processing
+            /*
+            fetch('/process_image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image: dataURL }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    feedback.textContent = 'ID scanned and processed successfully.';
+                } else {
+                    feedback.textContent = 'Error processing ID.';
+                    feedback.style.color = 'red';
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                feedback.textContent = 'Error processing ID.';
+                feedback.style.color = 'red';
+            });
+            */
+        }
+
+        // Function to stop the camera stream
+        function stopCamera() {
+            const stream = video.srcObject;
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+            }
+        }
+
+        // Initialize camera on page load
+        window.addEventListener('load', initCamera);
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', stopCamera);
+    </script>
+
+</body>
+</html>
