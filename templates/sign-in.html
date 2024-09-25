@@ -1,20 +1,23 @@
+<!-- templates/sign-in.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In - RTCNT Equipment Kiosk</title>
     <!-- Link to Google Fonts for Hanken Grotesk -->
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;800&display=swap" rel="stylesheet">
-    <!-- Link to CSS with correct relative path -->
-    <link rel="stylesheet" href="../static/styles.css"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <!-- Link to CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
 
     <!-- Fixed Header at the top -->
     <div class="header">
-        <!-- Logo Image with correct relative path -->
-        <img class="logo" src="../static/images/rit_logo.png" alt="RIT Logo" />
+        <!-- Logo Image -->
+        <img class="logo" src="{{ url_for('static', filename='images/rit_logo.png') }}" alt="RIT Logo" />
         <div class="header-text">Real-Time Captioning & Notetaking</div>
     </div>
 
@@ -30,13 +33,13 @@
             </div>
             <div class="instructions">Please align your ID within the frame to scan.</div>
             <!-- Cancel Button as a link -->
-            <a href="index.html" class="cancel-button">Cancel</a>
+            <a href="{{ url_for('main.home') }}" class="cancel-button">Cancel</a>
             <!-- Feedback Message -->
             <div id="feedback" class="feedback-message"></div>
         </div>
     </main>
 
-    <!-- JavaScript for Camera Access and Automatic Frame Capture -->
+    <!-- JavaScript for Camera Access and Frame Capture -->
     <script>
         const video = document.getElementById('camera');
         const canvas = document.getElementById('canvas');
@@ -51,8 +54,7 @@
                 video.srcObject = stream;
                 video.onloadedmetadata = () => {
                     video.play();
-                    // Automatically capture after a delay (e.g., 3 seconds)
-                    setTimeout(captureFrame, 3000);
+                    startCapture();
                 };
             } catch (error) {
                 console.error('Error accessing camera:', error);
@@ -70,20 +72,14 @@
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             // Convert the canvas image to data URL
             const dataURL = canvas.toDataURL('image/jpeg');
-            // Process the captured image (e.g., send to server or display)
+            // Process the captured image
             processCapturedImage(dataURL);
         }
 
         // Function to handle the captured image
         function processCapturedImage(dataURL) {
-            // Example: Display a feedback message
-            feedback.textContent = 'ID scanned successfully.';
-            feedback.style.color = 'green';
-            // Stop the video stream
-            stopCamera();
-            // Optionally, send the dataURL to a server for processing
-            /*
-            fetch('/process_image', {
+            // Send the dataURL to the server for processing
+            fetch('{{ url_for('main.process_image') }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -93,9 +89,13 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    feedback.textContent = 'ID scanned and processed successfully.';
+                    feedback.textContent = data.message;
+                    feedback.style.color = 'green';
+                    // Stop camera and proceed to next step
+                    stopCamera();
+                    // Optionally redirect or update the UI
                 } else {
-                    feedback.textContent = 'Error processing ID.';
+                    feedback.textContent = data.error;
                     feedback.style.color = 'red';
                 }
             })
@@ -104,7 +104,13 @@
                 feedback.textContent = 'Error processing ID.';
                 feedback.style.color = 'red';
             });
-            */
+        }
+
+        // Start capturing frames at intervals
+        function startCapture() {
+            captureFrame();
+            // Continue capturing every 3 seconds
+            window.captureInterval = setInterval(captureFrame, 500);
         }
 
         // Function to stop the camera stream
@@ -115,6 +121,8 @@
                 tracks.forEach(track => track.stop());
                 video.srcObject = null;
             }
+            // Clear the capture interval
+            clearInterval(window.captureInterval);
         }
 
         // Initialize camera on page load
