@@ -4,6 +4,7 @@ from flask import Flask
 import logging
 
 assetbot = Flask(__name__)
+assetbot.config['DEBUG'] = True
 
 # Load configurations
 assetbot.config.from_object('config.Config')

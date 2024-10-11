@@ -33,7 +33,7 @@
             </div>
             <div class="instructions">Please align your ID within the frame to scan.</div>
             <!-- Cancel Button as a link -->
-            <a href="{{ url_for('main.home') }}" class="cancel-button">Cancel</a>
+            <a href="{{ url_for('main_bp.home') }}" class="cancel-button">Cancel</a>
             <!-- Feedback Message -->
             <div id="feedback" class="feedback-message"></div>
         </div>
@@ -79,7 +79,7 @@
         // Function to handle the captured image
         function processCapturedImage(dataURL) {
             // Send the dataURL to the server for processing
-            fetch('{{ url_for('main.process_image') }}', {
+            fetch('{{ url_for('main_bp.process_image') }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

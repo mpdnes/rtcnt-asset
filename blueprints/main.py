@@ -1,6 +1,4 @@
-# blueprints/main.py
-
-from flask import Blueprint, render_template, jsonify, request, current_app
+from flask import Blueprint, render_template, jsonify, request, current_app, session, redirect, url_for
 import logging
 import base64
 import cv2
@@ -9,31 +7,27 @@ from pyzbar.pyzbar import decode
 from utils.snipe_it_api import (
     handle_user_signin,
     checkout_asset,
-    checkin_asset
+    checkin_asset,
+    get_asset_info,
+    is_asset_assigned_to_user
 )
 
-main_bp = Blueprint('main', __name__)
-logger = logging.getLogger(__name__)
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# Global variables to store current user state
-current_user = {
-    'id': None,
-    'name': None,
-    'action': None  # 'checkin' or 'checkout'
-}
+main_bp = Blueprint('main_bp', __name__)
+logger = logging.getLogger(__name__)
 
 @main_bp.route('/')
 def home():
     logger.debug('Home page accessed.')
-    return render_template('index.html')
+    return redirect(url_for('main_bp.sign_in'))
 
 @main_bp.route('/sign-in')
 def sign_in():
-    try:
-        return render_template('sign-in.html')
-    except Exception as e:
-        print(f"Error rendering template: {e}")
-        return "An error occurred", 500
+    if 'user_id' in session:
+        return redirect(url_for('main_bp.dashboard'))
+    return render_template('sign_in.html')
 
 @main_bp.route('/process_image', methods=['POST'])
 def process_image():
@@ -56,55 +50,37 @@ def process_image():
         barcode_data = barcodes[0].data.decode('utf-8')
         logger.debug(f'Barcode data detected: {barcode_data}')
         
-        # Determine the action based on current state
-        if current_user['id'] is None:
-            # Handle user sign-in
-            result = handle_user_signin(barcode_data)
-            if 'error' in result:
-                logger.error(result['error'])
-                return jsonify({'success': False, 'error': result['error']})
-            else:
-                # Update current user state
-                current_user['id'] = result['id']
-                current_user['name'] = result['name']
-                logger.info(f"User signed in: {current_user['name']}")
-                return jsonify({'success': True, 'message': f"Welcome, {current_user['name']}!"})
-        else:
-            # Handle asset check-in or check-out
-            if current_user['action'] == 'checkout':
-                result = checkout_asset(barcode_data, current_user['id'])
-            elif current_user['action'] == 'checkin':
-                result = checkin_asset(barcode_data, current_user['id'])
-            else:
-                logger.error('No action specified for asset processing.')
-                return jsonify({'success': False, 'error': 'No action specified.'})
+        # Handle user sign-in
+        result = handle_user_signin(barcode_data)
+        logger.debug(f"User Sign-In Result: {result}")  # Log the result to inspect its structure
+        print(f"User Sign-In Result: {result}")  # Use print to ensure visibility
 
-            if 'error' in result:
-                logger.error(result['error'])
-                return jsonify({'success': False, 'error': result['error']})
-            else:
-                logger.info(result['message'])
-                return jsonify({'success': True, 'message': result['message']})
+        if 'error' in result:
+            logger.error(result['error'])
+            return jsonify({'success': False, 'error': result['error']})
+        else:
+            # Safely access session variables using .get()
+            session['user_name'] = result.get('name', 'Unknown')
+            session['employee_num'] = result.get('employee_num', 'Not Available')
+
+            logger.info(f"Session Data - user_name: {session['user_name']}, employee_num: {session['employee_num']}")
+            logger.info(f"User signed in: {session['user_name']}")
+            # Include a redirect URL in the response
+            return jsonify({'success': True, 'message': f"Welcome, {session['user_name']}!", 'redirect': url_for('main_bp.dashboard')})
     else:
         logger.warning('No barcode found in the image.')
-        return jsonify({'success': False, 'error': 'No barcode found.'})
+        return jsonify({'success': False, 'error': 'No barcode found in the image.'})
 
-@main_bp.route('/set-action', methods=['POST'])
-def set_action():
-    data = request.get_json()
-    action = data.get('action')
-    if action in ['checkin', 'checkout']:
-        current_user['action'] = action
-        logger.debug(f"Action set to {action}.")
-        return jsonify({'success': True})
-    else:
-        logger.error('Invalid action specified.')
-        return jsonify({'success': False, 'error': 'Invalid action.'})
 
-@main_bp.route('/sign-out', methods=['POST'])
-def sign_out():
-    logger.info(f"User signed out: {current_user['name']}")
-    current_user['id'] = None
-    current_user['name'] = None
-    current_user['action'] = None
-    return jsonify({'success': True, 'message': 'Signed out successfully.'})
+@main_bp.route('/dashboard')
+def dashboard():
+    logger.debug(f"Session Data at Dashboard: {dict(session)}")  # Log the entire session
+    if 'user_name' not in session:
+        return redirect(url_for('main_bp.sign_in'))
+    return render_template('dashboard.html', user_name=session.get('user_name', 'Unknown'))
+
+@main_bp.route('/logout')
+def logout():
+    logger.info(f"User logged out: {session.get('user_name')}")
+    session.clear()
+    return redirect(url_for('main_bp.sign_in'))
